@@ -76,6 +76,8 @@ func (c *Chip8) i8XY4(nibbles [4]uint16) {
 	c.registers[nibbles[1]] = c.registers[nibbles[1]] + c.registers[nibbles[2]]
 	if uint16(c.registers[nibbles[1]])+uint16(c.registers[nibbles[2]]) > 255 {
 		c.registers[0xF] = 1
+	} else {
+		c.registers[0xF] = 0
 	}
 }
 
@@ -83,6 +85,8 @@ func (c *Chip8) i8XY5(nibbles [4]uint16) {
 	c.registers[nibbles[1]] = c.registers[nibbles[1]] - c.registers[nibbles[2]]
 	if c.registers[nibbles[1]] > c.registers[nibbles[2]] {
 		c.registers[0xF] = 1
+	} else {
+		c.registers[0xF] = 0
 	}
 }
 
@@ -101,6 +105,8 @@ func (c *Chip8) i8XY7(nibbles [4]uint16) {
 	c.registers[nibbles[1]] = c.registers[nibbles[2]] - c.registers[nibbles[1]]
 	if c.registers[nibbles[2]] > c.registers[nibbles[1]] {
 		c.registers[0xF] = 1
+	} else {
+		c.registers[0xF] = 0
 	}
 }
 
@@ -199,6 +205,8 @@ func (c *Chip8) iFX1E(nibbles [4]uint16) {
 	// Overflow
 	if orig > c.indexRegister {
 		c.registers[0xF] = 1
+	} else {
+		c.registers[0xF] = 0
 	}
 }
 

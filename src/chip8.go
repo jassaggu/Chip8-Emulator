@@ -87,7 +87,7 @@ func NewChip8(ROMPath string) Chip8 {
 	return chip8
 }
 
-func (c *Chip8) FDELoop() {
+func (c *Chip8) FDECycle() {
 	// ~~ Fetch ~~
 	var instruction uint16 = (uint16(c.memory[c.programCounter]) << 8) | uint16(c.memory[c.programCounter+1])
 	c.programCounter += 2

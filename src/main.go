@@ -1,8 +1,9 @@
 package main
 
 func main() {
-	chip8 := NewChip8("Airplane.ch8")
+	ROMName := "Breakout.ch8"
 
-	chip8.FDELoop()
+	chip8 := NewChip8(ROMName)
+	chip8.raylibFrontendLoop(ROMName, 512)
 
 }
