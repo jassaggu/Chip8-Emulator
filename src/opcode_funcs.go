@@ -153,7 +153,7 @@ func (c *Chip8) iDXYN(nibbles [4]uint16) {
 		spriteRowBits := getByteBits(c.memory[currAddress])
 
 		for i, bit := range spriteRowBits {
-			displayIndex := getDisplayIndex(uint16(currX + uint8(i)), uint16(currY), uint16(c.displayWidth), uint16(c.displayHeight))
+			displayIndex := getDisplayIndex(uint16(currX+uint8(i)), uint16(currY), uint16(c.displayWidth), uint16(c.displayHeight))
 			c.display[displayIndex] = bit ^ c.display[displayIndex]
 
 			// Flag VF if collision
@@ -164,4 +164,103 @@ func (c *Chip8) iDXYN(nibbles [4]uint16) {
 		currY++
 	}
 
+}
+
+func (c *Chip8) iEX9E(nibbles [4]uint16) {
+	key := c.keys[c.registers[nibbles[1]]]
+	if key == 1 {
+		c.programCounter += 2
+	}
+}
+
+func (c *Chip8) iEXA1(nibbles [4]uint16) {
+	key := c.keys[c.registers[nibbles[1]]]
+	if key == 0 {
+		c.programCounter += 2
+	}
+}
+
+func (c *Chip8) iFX07(nibbles [4]uint16) {
+	c.registers[nibbles[1]] = c.delayTimer
+}
+
+func (c *Chip8) iFX15(nibbles [4]uint16) {
+	c.delayTimer = c.registers[nibbles[1]]
+}
+
+func (c *Chip8) iFX18(nibbles [4]uint16) {
+	c.soundTimer = c.registers[nibbles[1]]
+}
+
+func (c *Chip8) iFX1E(nibbles [4]uint16) {
+	orig := c.indexRegister
+	c.indexRegister += nibbles[1]
+
+	// Overflow
+	if orig > c.indexRegister {
+		c.registers[0xF] = 1
+	}
+}
+
+func (c *Chip8) iFX0A(nibbles [4]uint16) {
+	pressed := false
+	for i, key := range c.keys {
+		if key == 1 {
+			c.registers[nibbles[1]] = uint8(i)
+			pressed = true
+		}
+	}
+
+	if !pressed {
+		c.programCounter -= 2
+	}
+}
+
+func (c *Chip8) iFX29(nibbles [4]uint16) {
+	// The index register I is set to the address of the hexadecimal character in VX
+	fontMemoryMap := map[uint16]uint16{
+		0x0: 0x50,
+		0x1: 0x55,
+		0x2: 0x5A,
+		0x3: 0x5F,
+		0x4: 0x64,
+		0x5: 0x69,
+		0x6: 0x6E,
+		0x7: 0x73,
+		0x8: 0x78,
+		0x9: 0x7D,
+		0xA: 0x82,
+		0xB: 0x87,
+		0xC: 0x8C,
+		0xD: 0x91,
+		0xE: 0x96,
+		0xF: 0x9B,
+	}
+
+	c.indexRegister = fontMemoryMap[nibbles[1]]
+}
+
+func (c *Chip8) iFX33(nibbles [4]uint16) {
+	num := c.registers[nibbles[1]]
+	var digits [3]uint8
+
+	digits[0] = num / 100
+	digits[1] = (num / 10) % 10
+	digits[2] = num % 10
+
+	c.memory[c.indexRegister] = digits[0]
+	c.memory[c.indexRegister+1] = digits[1]
+	c.memory[c.indexRegister+2] = digits[2]
+}
+
+func (c *Chip8) iFX55(nibbles [4]uint16) {
+	for i := range nibbles[1] + 1 {
+		c.memory[c.indexRegister+i] = c.registers[i]
+	}
+}
+
+func (c *Chip8) iFX65(nibbles [4]uint16) {
+	for i := range nibbles[1] + 1 {
+		c.registers[i] = c.memory[c.indexRegister+i]
+	}
 }

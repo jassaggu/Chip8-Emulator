@@ -17,6 +17,7 @@ type Chip8 struct {
 	display        [64 * 32]uint8
 	displayWidth   uint8
 	displayHeight  uint8
+	keys           [16]uint8
 
 	fontSet [80]uint8
 }
@@ -202,10 +203,59 @@ func (c *Chip8) FDELoop() {
 		c.iDXYN(nibbles)
 
 	case 0xE:
+		switch instruction & 0xFF {
+		case 0x9E:
+			// If the key in VX is pressed, skip next instruction
+			c.iEX9E(nibbles)
+
+		case 0xA1:
+			// If the key in VX is not pressed, skip next instruction
+			c.iEXA1(nibbles)
+
+		}
 
 	case 0xF:
+		// All F instructions start with FX
+		switch instruction & 0xFF {
+		case 0x07:
+			// Set VX to value in the delay timer
+			c.iFX07(nibbles)
+
+		case 0x15:
+			// Set delay timer to value in VX
+			c.iFX07(nibbles)
+
+		case 0x18:
+			// Set sound timer to value in VX
+			c.iFX18(nibbles)
+
+		case 0x1E:
+			// Adds VF to index register
+			c.iFX1E(nibbles)
+
+		case 0x0A:
+			// Pauses until key is pressed and stored key value in VX
+			c.iFX0A(nibbles)
+
+		case 0x29:
+			// The index register I is set to the address of the hexadecimal character in VX
+			c.iFX29(nibbles)
+
+		case 0x33:
+			// Binary-coded decimal conversion (digits stored at index register + ...)
+			c.iFX33(nibbles)
+
+		case 0x55:
+			// Write values in registers 0-X in memory starting from index register
+			c.iFX55(nibbles)
+
+		case 0x65:
+			// Write values from memory starting from index register into registers 0-X
+			c.iFX65(nibbles)
+		}
 
 	default:
-		// optional: handle unknown or invalid nibble
+		fmt.Print(instruction)
+		panic(": invalid instruction")
 	}
 }
