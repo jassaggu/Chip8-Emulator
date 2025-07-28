@@ -29,7 +29,7 @@ func (c *Chip8) pushStack(address uint16) {
 
 func (c *Chip8) popStack() uint16 {
 	c.stackPointer -= 1
-	return c.stack[c.stackPointer+1]
+	return c.stack[c.stackPointer]
 }
 
 func (c *Chip8) printDisplay() {

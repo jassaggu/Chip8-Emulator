@@ -142,7 +142,7 @@ func (c *Chip8) iBNNN(instruction uint16) {
 
 func (c *Chip8) iCXNN(instruction uint16) {
 	var randNum uint8 = uint8(rand.IntN(255))
-	c.registers[instruction&0x0F00] = uint8(instruction&0x00FF) & randNum
+	c.registers[(instruction&0x0F00) >> 8] = uint8(instruction&0x00FF) & randNum
 }
 
 func (c *Chip8) iDXYN(nibbles [4]uint16) {
